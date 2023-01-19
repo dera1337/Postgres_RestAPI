@@ -1,16 +1,16 @@
-CREATE TABLE "class" (
+CREATE TABLE IF NOT EXISTS "class" (
 	class_id serial NOT NULL,
 	"name" varchar NOT NULL,
 	CONSTRAINT class_pk PRIMARY KEY (class_id)
 );
 
-CREATE TABLE school (
+CREATE TABLE IF NOT EXISTS school (
 	school_id serial NOT NULL,
 	"name" varchar NOT NULL,
 	CONSTRAINT school_pk PRIMARY KEY (school_id)
 );
 
-CREATE TABLE principal (
+CREATE TABLE IF NOT EXISTS principal (
 	principal_id serial NOT NULL,
 	"name" varchar NOT NULL,
 	school_id int NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE principal (
 	CONSTRAINT principal_fk FOREIGN KEY (school_id) REFERENCES school(school_id)
 );
 
-CREATE TABLE student (
+CREATE TABLE IF NOT EXISTS student (
 	student_id serial NOT NULL,
 	"name" varchar NOT NULL,
 	school_id int NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE student (
 	CONSTRAINT student_fk FOREIGN KEY (school_id) REFERENCES school(school_id)
 );
 
-CREATE TABLE student_class_xref (
+CREATE TABLE IF NOT EXISTS student_class_xref (
 	student_id int NOT NULL,
 	class_id int NOT NULL,
 	CONSTRAINT student_class_xref_pk PRIMARY KEY (student_id,class_id),

@@ -12,13 +12,13 @@ import (
 )
 
 func main() {
-	err := db.InitDB()
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
+	// err := db.InitDB()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// 	return
+	// }
 
-	defer db.CloseConnection()
+	// defer db.CloseConnection()
 
 	r := mux.NewRouter()
 
@@ -30,12 +30,32 @@ func main() {
 
 	r.HandleFunc("/create/class", readClassHandler).Methods("DELETE")
 
-	err = http.ListenAndServe("localhost:8080", r)
+	err := http.ListenAndServe("localhost:8080", r)
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
 
+}
+
+type GenericResponse struct {
+	Data       interface{} `json:"data"`
+	Message    string      `json:"message"`
+	StatusCode int         `json:"status_code"`
+}
+
+func writeResponse(w http.ResponseWriter, data interface{}, msg string, statusCode int) {
+	response := GenericResponse{
+		Data:       data,
+		Message:    msg,
+		StatusCode: statusCode,
+	}
+
+	jsonBytes, _ := json.Marshal(&response)
+
+	w.Header().Set("content-type", "application/json")
+	w.WriteHeader(statusCode)
+	w.Write(jsonBytes)
 }
 
 func readClassHandler(w http.ResponseWriter, r *http.Request) {

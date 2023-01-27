@@ -3,16 +3,16 @@ package db
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Class struct {
-	ID   int
-	Name string
+	ID   int    `json:"id"`
+	Name string `json:"name"`
 	// PhoneNumber string
 }
 
-func InsertRow(conn *pgx.Conn, class Class) error {
+func InsertRow(conn *pgxpool.Pool, class Class) error {
 	ctx := context.Background()
 
 	queryString :=
@@ -28,7 +28,7 @@ func InsertRow(conn *pgx.Conn, class Class) error {
 	return nil
 }
 
-func UpdateRow(conn *pgx.Conn, class Class) error {
+func UpdateRow(conn *pgxpool.Pool, class Class) error {
 	ctx := context.Background()
 
 	queryString :=
@@ -45,7 +45,7 @@ func UpdateRow(conn *pgx.Conn, class Class) error {
 	return nil
 }
 
-func DeleteRow(conn *pgx.Conn, class Class) error {
+func DeleteRow(conn *pgxpool.Pool, class Class) error {
 	ctx := context.Background()
 
 	queryString :=
@@ -60,7 +60,7 @@ func DeleteRow(conn *pgx.Conn, class Class) error {
 	return nil
 }
 
-func ReadRow(conn *pgx.Conn, classID int) (Class, error) {
+func ReadRow(conn *pgxpool.Pool, classID int) (Class, error) {
 	ctx := context.Background()
 
 	queryString :=
@@ -79,7 +79,7 @@ func ReadRow(conn *pgx.Conn, classID int) (Class, error) {
 	return class, nil
 }
 
-func ReadRows(conn *pgx.Conn) ([]Class, error) {
+func ReadRows(conn *pgxpool.Pool) ([]Class, error) {
 	ctx := context.Background()
 
 	queryString :=

@@ -4,16 +4,16 @@ import (
 	"context"
 	"os"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 var (
-	Conn *pgx.Conn
+	Conn *pgxpool.Pool
 )
 
 func InitDB() error {
 	bgCtx := context.Background()
-	conn, err := pgx.Connect(bgCtx, "postgres://postgres:Paramore_12345@localhost:5432/postgres")
+	conn, err := pgxpool.New(bgCtx, "postgres://postgres:Paramore_12345@localhost:5432/postgres")
 	if err != nil {
 		return err
 	}
@@ -27,16 +27,11 @@ func InitDB() error {
 	return nil
 }
 
-func CloseConnection() error {
-	err := Conn.Close(context.Background())
-	if err != nil {
-		return err
-	}
-
-	return nil
+func CloseConnection() {
+	Conn.Close()
 }
 
-func initTables(conn *pgx.Conn) error {
+func initTables(conn *pgxpool.Pool) error {
 	sqlFilePath := `C:\Users\yoris\Desktop\go-wokspace\src\exercisee\init.sql`
 
 	c, err := os.ReadFile(sqlFilePath)

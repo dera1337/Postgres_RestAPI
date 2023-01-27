@@ -45,7 +45,7 @@ func UpdateRow(conn *pgxpool.Pool, class Class) error {
 	return nil
 }
 
-func DeleteRow(conn *pgxpool.Pool, class Class) error {
+func DeleteRow(conn *pgxpool.Pool, classID int) error {
 	ctx := context.Background()
 
 	queryString :=
@@ -53,7 +53,7 @@ func DeleteRow(conn *pgxpool.Pool, class Class) error {
 	DELETE from class
 	WHERE class_id = $1
 	`
-	_, err := conn.Exec(ctx, queryString, class.ID)
+	_, err := conn.Exec(ctx, queryString, classID)
 	if err != nil {
 		return err
 	}

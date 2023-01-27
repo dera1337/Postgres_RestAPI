@@ -7,30 +7,31 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
 
 func main() {
-	// err := db.InitDB()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// 	return
-	// }
+	err := db.InitDB()
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 
-	// defer db.CloseConnection()
+	defer db.CloseConnection()
 
 	r := mux.NewRouter()
 
 	r.HandleFunc("/create/class", insertClassHandler).Methods("POST")
 
-	r.HandleFunc("/create/class", updateClassHandler).Methods("UPDATE")
+	// r.HandleFunc("/create/class", updateClassHandler).Methods("UPDATE")
 
-	r.HandleFunc("/create/class", deleteClassHandler).Methods("DELETE")
+	r.HandleFunc("/delete/class/{classID}", deleteClassHandler).Methods("DELETE")
 
-	r.HandleFunc("/create/class", readClassHandler).Methods("DELETE")
+	// r.HandleFunc("/create/class", readClassHandler).Methods("GET")
 
-	err := http.ListenAndServe("localhost:8080", r)
+	err = http.ListenAndServe("localhost:8080", r)
 	if err != nil {
 		log.Fatal(err)
 		return
@@ -97,27 +98,29 @@ func updateClassHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteClassHandler(w http.ResponseWriter, r *http.Request) {
-	jsonBytes, err := io.ReadAll(r.Body)
+	params := mux.Vars(r)
+	idString := params["classID"]
+	id, err := strconv.Atoi(idString)
 	if err != nil {
+		writeResponse(w, nil, "expecting int for classID, but got string", http.StatusBadRequest)
 		return
 	}
 
-	var class db.Class
-
-	err = json.Unmarshal(jsonBytes, &class)
+	err = db.DeleteRow(db.Conn, id)
 	if err != nil {
+		messageDelete := fmt.Sprintf("can't delete row with ID: %d", id)
+		writeResponse(w, nil, messageDelete, http.StatusBadRequest)
 		return
 	}
 
-	err = db.DeleteRow(db.Conn, class)
-	if err != nil {
-		return
-	}
+	messageOk := fmt.Sprintf("deleted row with ID: %d", id)
+	writeResponse(w, nil, messageOk, http.StatusOK)
 }
 
 func insertClassHandler(w http.ResponseWriter, r *http.Request) {
 	jsonBytes, err := io.ReadAll(r.Body)
 	if err != nil {
+		writeResponse(w, nil, "expecting content, please type something", http.StatusBadRequest)
 		return
 	}
 
@@ -125,13 +128,18 @@ func insertClassHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = json.Unmarshal(jsonBytes, &class)
 	if err != nil {
+		writeResponse(w, nil, "invalidJSON", http.StatusBadRequest)
 		return
 	}
 
 	err = db.InsertRow(db.Conn, class)
 	if err != nil {
+		messageFailInsert := fmt.Sprintf("Fail inserting: %s", class.Name)
+		writeResponse(w, nil, messageFailInsert, http.StatusBadRequest)
 		return
 	}
+	messageSuccessInsert := fmt.Sprintf("Success inserting class with name: %s", class.Name)
+	writeResponse(w, nil, messageSuccessInsert, http.StatusOK)
 }
 
 func handleParameters(w http.ResponseWriter, r *http.Request) {
